@@ -62,6 +62,7 @@ class NotasPorImportacionListView(ListAPIView):
                     data.append({
                         'id': n.id,
                         'estudiante': str(n.estudiante),
+                        'nombre_estudiante': f"{n.estudiante.nombres} {n.estudiante.apellidos}".strip(),
                         'puntaje': float(puntaje_area),
                         'porcentaje': n.porcentaje,
                         'fecha_importacion': n.importacion.fecha_importacion.isoformat(),
