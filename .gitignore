@@ -1,0 +1,12 @@
+# Ignorar entorno virtual de Python
+venv/
+__pycache__/
+
+# Ignorar archivos temporales
+*.log
+*.env
+.DS_Store
+
+# Ignorar archivos de compilación (por ejemplo, en frontend)
+dist/
+node_modules/
