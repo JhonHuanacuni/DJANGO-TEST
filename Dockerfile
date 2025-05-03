@@ -38,6 +38,9 @@ RUN useradd -m -s /bin/bash railway \
 # Copiar el resto del código
 COPY . .
 
+# Asegurar que entrypoint.sh tenga permisos de ejecución
+RUN chmod +x /app/entrypoint.sh
+
 EXPOSE 8080 22
 
 ENTRYPOINT ["/app/entrypoint.sh"]
