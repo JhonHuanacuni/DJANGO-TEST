@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'apps.biblioteca.apps.BibliotecaConfig',
     'apps.horarios.apps.HorariosConfig',
     'apps.enlaces.apps.EnlacesConfig',
+    'apps.examen.apps.ExamenConfig',
 ]
 
 MIDDLEWARE = [
