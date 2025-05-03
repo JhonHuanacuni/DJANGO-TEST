@@ -9,6 +9,20 @@ class ImportacionNotas(models.Model):
     def __str__(self):
         return f"Importación {self.nombre_archivo} - {self.fecha_importacion}"
 
+class DetalleNota(models.Model):
+    nota = models.ForeignKey('Nota', on_delete=models.CASCADE, related_name='detalles')
+    pregunta = models.ForeignKey('examen.Pregunta', on_delete=models.CASCADE)
+    area = models.CharField(max_length=50)
+    estado = models.CharField(
+        max_length=20,
+        choices=[('correcta', 'Correcta'), ('incorrecta', 'Incorrecta'), ('no_respondida', 'No respondida')]
+    )
+    alternativa_marcada = models.ForeignKey('examen.Alternativa', on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"DetalleNota de Nota {self.nota_id}, Pregunta {self.pregunta_id}, Estado {self.estado}"
+
+
 class Nota(models.Model):
     MODO_CHOICES = [
         ("presencial", "Presencial"),
@@ -45,4 +59,3 @@ class Nota(models.Model):
 
     class Meta:
         ordering = ['-id']
-

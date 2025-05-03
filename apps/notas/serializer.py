@@ -149,7 +149,7 @@ class NotaBulkImportWithImportacionSerializer(serializers.Serializer):
             filo = sum(1 for pts in puntos[30:32] if pts == 20)
             fis = sum(1 for pts in puntos[32:34] if pts == 20)
             qui = sum(1 for pts in puntos[34:36] if pts == 20)
-            bio = sum(1 for pts in puntos[36:38] if pts == 20)
+            bio = sum(1 for pts in puntos[36:40] if pts == 20)
             nota = Nota.objects.create(
                 estudiante=estudiante,
                 puntaje=puntaje,
