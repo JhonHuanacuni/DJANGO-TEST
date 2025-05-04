@@ -27,7 +27,7 @@ class Examen(models.Model):
     titulo = models.CharField(max_length=255)
     descripcion = models.TextField(blank=True)
     tipo = models.IntegerField(choices=TIPO_CHOICES)
-    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='examenes')
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='examenes', null=True, blank=True)
     fecha_inicio = models.DateTimeField()
     fecha_fin = models.DateTimeField()
     tiempo_limite = models.IntegerField(help_text="Tiempo en minutos")
