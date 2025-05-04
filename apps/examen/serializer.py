@@ -86,3 +86,17 @@ class ExamenListSerializer(serializers.ModelSerializer):
             'categoria_nombre', 'activo', 'esta_activo', 'fecha_inicio', 
             'fecha_fin', 'tiempo_limite', 'created_at'
         ]
+
+class NotaSerializer(serializers.ModelSerializer):
+    estudiante_nombre = serializers.CharField(source='estudiante.get_full_name', read_only=True)
+    examen_titulo = serializers.CharField(source='examen.titulo', read_only=True)
+    curso_nombre = serializers.CharField(source='examen.curso.nombre', read_only=True)
+    categoria_nombre = serializers.CharField(source='examen.curso.categoria.nombre', read_only=True)
+
+    class Meta:
+        model = Nota
+        fields = [
+            'id', 'estudiante', 'estudiante_nombre', 'examen', 'examen_titulo',
+            'curso_nombre', 'categoria_nombre', 'puntaje', 'porcentaje',
+            'correctas', 'incorrectas', 'no_respuesta', 'created_at'
+        ]
