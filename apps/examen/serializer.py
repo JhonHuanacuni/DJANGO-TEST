@@ -6,6 +6,13 @@ class CategoriaSerializer(serializers.ModelSerializer):
         model = Categoria
         fields = ['id', 'nombre', 'descripcion']
 
+class CursoSerializer(serializers.ModelSerializer):
+    categoria_nombre = serializers.CharField(source='categoria.nombre', read_only=True)
+    
+    class Meta:
+        model = Curso
+        fields = ['id', 'nombre', 'descripcion', 'categoria', 'categoria_nombre']
+
 class AlternativaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Alternativa
