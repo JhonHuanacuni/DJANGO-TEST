@@ -27,12 +27,14 @@ class Examen(models.Model):
     titulo = models.CharField(max_length=255)
     descripcion = models.TextField(blank=True)
     tipo = models.IntegerField(choices=TIPO_CHOICES)
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='examenes')
     fecha_inicio = models.DateTimeField()
     fecha_fin = models.DateTimeField()
     tiempo_limite = models.IntegerField(help_text="Tiempo en minutos")
     visible = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name='examenes_creados')
 
     class Meta:
         ordering = ['-created_at']

@@ -47,7 +47,7 @@ class ExamenViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         if not self.request.user.is_staff:
             raise PermissionDenied("Solo los administradores pueden crear exámenes")
-        serializer.save()
+        serializer.save(creado_por=self.request.user)
 
     def perform_update(self, serializer):
         if not self.request.user.is_staff:

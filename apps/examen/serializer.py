@@ -1,39 +1,46 @@
 from rest_framework import serializers
-from apps.examen.models import  Examen, Pregunta, Alternativa, Categoria, Curso, Nota
-
-class CategoriaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Categoria
-        fields = ['id', 'nombre', 'descripcion']
-
-class CursoSerializer(serializers.ModelSerializer):
-    categoria_nombre = serializers.CharField(source='categoria.nombre', read_only=True)
-    
-    class Meta:
-        model = Curso
-        fields = ['id', 'nombre', 'descripcion', 'categoria', 'categoria_nombre']
+from .models import Categoria, Curso, Examen, Pregunta, Alternativa, Nota
 
 class AlternativaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Alternativa
-        fields = ['id', 'texto', 'es_correcta']
+        fields = ['id', 'texto', 'es_correcta', 'puntaje', 'orden']
+        read_only_fields = ['id']
+
+    def validate_puntaje(self, value):
+        if value is not None and value < 0:
+            raise serializers.ValidationError("El puntaje no puede ser negativo")
+        return value
 
 class PreguntaSerializer(serializers.ModelSerializer):
-    alternativas = AlternativaSerializer(many=True, required=True)
+    alternativas = AlternativaSerializer(many=True)
 
     class Meta:
         model = Pregunta
         fields = ['id', 'texto', 'area', 'alternativas']
+        read_only_fields = ['id']
 
     def validate_alternativas(self, value):
         if len(value) != 5:
-            raise serializers.ValidationError("Debe haber exactamente 5 alternativas por pregunta")
+            raise serializers.ValidationError("Debe haber exactamente 5 alternativas")
         
-        correctas = sum(1 for alt in value if alt['es_correcta'])
+        correctas = sum(1 for alt in value if alt.get('es_correcta', False))
         if correctas != 1:
             raise serializers.ValidationError("Debe haber exactamente una alternativa correcta")
         
         return value
+
+class CursoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Curso
+        fields = ['id', 'nombre', 'descripcion']
+
+class CategoriaSerializer(serializers.ModelSerializer):
+    cursos = CursoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Categoria
+        fields = ['id', 'nombre', 'descripcion', 'cursos']
 
 class ExamenSerializer(serializers.ModelSerializer):
     preguntas = PreguntaSerializer(many=True, required=True)
@@ -44,9 +51,10 @@ class ExamenSerializer(serializers.ModelSerializer):
         model = Examen
         fields = [
             'id', 'titulo', 'descripcion', 'tipo', 'curso', 'curso_nombre', 
-            'categoria_nombre', 'activo', 'fecha_inicio', 'fecha_fin', 
+            'categoria_nombre', 'visible', 'fecha_inicio', 'fecha_fin', 
             'tiempo_limite', 'preguntas', 'created_at', 'updated_at'
         ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
     def validate(self, data):
         if data['fecha_inicio'] >= data['fecha_fin']:
@@ -83,7 +91,7 @@ class ExamenListSerializer(serializers.ModelSerializer):
         model = Examen
         fields = [
             'id', 'titulo', 'descripcion', 'tipo', 'curso_nombre', 
-            'categoria_nombre', 'activo', 'esta_activo', 'fecha_inicio', 
+            'categoria_nombre', 'visible', 'esta_activo', 'fecha_inicio', 
             'fecha_fin', 'tiempo_limite', 'created_at'
         ]
 
@@ -100,3 +108,13 @@ class NotaSerializer(serializers.ModelSerializer):
             'curso_nombre', 'categoria_nombre', 'puntaje', 'porcentaje',
             'correctas', 'incorrectas', 'no_respuesta', 'created_at'
         ]
+        read_only_fields = ['id', 'created_at']
+
+    def validate(self, data):
+        examen = data.get('examen')
+        estudiante = data.get('estudiante')
+        
+        if Nota.objects.filter(examen=examen, estudiante=estudiante).exists():
+            raise serializers.ValidationError("Ya existe una nota para este estudiante en este examen")
+        
+        return data 
