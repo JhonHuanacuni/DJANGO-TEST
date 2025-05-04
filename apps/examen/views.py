@@ -6,7 +6,7 @@ from django.utils import timezone
 from apps.examen.models import Categoria, Curso, Examen, Pregunta, Alternativa, Nota
 from apps.examen.serializer import (
     CategoriaSerializer, CursoSerializer, ExamenSerializer,
-    ExamenListSerializer, PreguntaSerializer, AlternativaSerializer, NotaSerializer
+    PreguntaSerializer, AlternativaSerializer, NotaSerializer
 )
 from apps.users.models import Usuario
 from decimal import Decimal
