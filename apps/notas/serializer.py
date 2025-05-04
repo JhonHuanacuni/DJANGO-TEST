@@ -21,6 +21,7 @@ class NotaBulkImportWithImportacionSerializer(serializers.Serializer):
     nombre_archivo = serializers.CharField()
     data = serializers.ListField(child=serializers.DictField())
     tipo_importacion = serializers.IntegerField(required=False, default=40)
+    salon_id = serializers.IntegerField(required=False, allow_null=True)
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -28,10 +29,12 @@ class NotaBulkImportWithImportacionSerializer(serializers.Serializer):
         nombre_archivo = validated_data['nombre_archivo']
         data = validated_data['data']
         tipo_importacion = validated_data.get('tipo_importacion', 40)
+        salon_id = validated_data.get('salon_id')
         print(f"[DEBUG] Tipo de importación recibido: {tipo_importacion}")
         importacion = ImportacionNotas.objects.create(
             importado_por=usuario,
-            nombre_archivo=nombre_archivo
+            nombre_archivo=nombre_archivo,
+            salon_id=salon_id
         )
         notas_creadas = []
         if tipo_importacion == 100:

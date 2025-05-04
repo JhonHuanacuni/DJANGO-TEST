@@ -26,7 +26,13 @@ class ImportacionNotasListView(ListAPIView):
                 'id': imp.id,
                 'fecha_importacion': imp.fecha_importacion.isoformat(),
                 'importado_por': str(imp.importado_por) if imp.importado_por else None,
-                'nombre_archivo': imp.nombre_archivo
+                'nombre_archivo': imp.nombre_archivo,
+                'salon': {
+                    'id': imp.salon.id,
+                    'nombre': imp.salon.nombre,
+                    'capacidad': imp.salon.capacidad,
+                    'activo': imp.salon.activo
+                } if imp.salon else None
             } for imp in self.get_queryset()
         ]
         return Response(data)

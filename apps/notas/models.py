@@ -1,10 +1,12 @@
 from django.db import models
 from apps.users.models import Usuario
+from apps.membresias.models import Salon
 
 class ImportacionNotas(models.Model):
     fecha_importacion = models.DateTimeField(auto_now_add=True)
     importado_por = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True)
     nombre_archivo = models.CharField(max_length=255, help_text="Nombre del archivo de referencia")
+    salon = models.ForeignKey(Salon, on_delete=models.SET_NULL, null=True, blank=True, help_text="Salón donde se tomó el examen")
 
     def __str__(self):
         return f"Importación {self.nombre_archivo} - {self.fecha_importacion}"
