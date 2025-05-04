@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.examen.models import Categoria, Curso, Examen, Pregunta, Alternativa
+from apps.examen.models import  Examen, Pregunta, Alternativa
 
 class AlternativaSerializer(serializers.ModelSerializer):
     class Meta:
