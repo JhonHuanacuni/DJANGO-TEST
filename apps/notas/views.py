@@ -19,23 +19,30 @@ class NotaBulkImportView(APIView):
 
 class ImportacionNotasListView(ListAPIView):
     queryset = ImportacionNotas.objects.all().order_by('-fecha_importacion')
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsSecretario]
+    
     def get(self, request, *args, **kwargs):
-        data = [
-            {
-                'id': imp.id,
-                'fecha_importacion': imp.fecha_importacion.isoformat(),
-                'importado_por': str(imp.importado_por) if imp.importado_por else None,
-                'nombre_archivo': imp.nombre_archivo,
-                'salon': {
-                    'id': imp.salon.id,
-                    'nombre': imp.salon.nombre,
-                    'capacidad': imp.salon.capacidad,
-                    'activo': imp.salon.activo
-                } if imp.salon else None
-            } for imp in self.get_queryset()
-        ]
-        return Response(data)
+        try:
+            data = [
+                {
+                    'id': imp.id,
+                    'fecha_importacion': imp.fecha_importacion.isoformat(),
+                    'importado_por': str(imp.importado_por) if imp.importado_por else None,
+                    'nombre_archivo': imp.nombre_archivo,
+                    'salon': {
+                        'id': imp.salon.id,
+                        'nombre': imp.salon.nombre,
+                        'capacidad': imp.salon.capacidad,
+                        'activo': imp.salon.activo
+                    } if imp.salon else None
+                } for imp in self.get_queryset()
+            ]
+            return Response(data)
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class NotasPorImportacionListView(ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
