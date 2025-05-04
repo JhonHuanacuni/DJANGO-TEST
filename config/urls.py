@@ -32,5 +32,6 @@ urlpatterns = [
     path('api/biblioteca/', include('biblioteca.urls')),
     path('api/horarios/', include('horarios.urls')),
     path('api/enlaces/', include('enlaces.urls')),
+    path('api/examenes/', include('examenes.urls')),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
