@@ -11,6 +11,7 @@ from apps.examen.serializer import (
 from apps.users.models import Usuario
 from decimal import Decimal
 from rest_framework.exceptions import PermissionDenied
+from rest_framework import serializers
 
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
@@ -44,9 +45,28 @@ class ExamenViewSet(viewsets.ModelViewSet):
             )
         return queryset
 
+    def create(self, request, *args, **kwargs):
+        try:
+            if not request.user.is_staff:
+                return Response(
+                    {"error": "Solo los administradores pueden crear exámenes"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        except serializers.ValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(
+                {"error": f"Error al crear el examen: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     def perform_create(self, serializer):
-        if not self.request.user.is_staff:
-            raise PermissionDenied("Solo los administradores pueden crear exámenes")
         serializer.save(creado_por=self.request.user)
 
     def perform_update(self, serializer):

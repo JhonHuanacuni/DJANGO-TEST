@@ -57,30 +57,48 @@ class ExamenSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def validate(self, data):
-        if data['fecha_inicio'] >= data['fecha_fin']:
-            raise serializers.ValidationError("La fecha de inicio debe ser anterior a la fecha de fin")
+        errors = {}
         
-        if data['tiempo_limite'] <= 0:
-            raise serializers.ValidationError("El tiempo límite debe ser mayor a 0")
+        # Validar fechas
+        if data.get('fecha_inicio') and data.get('fecha_fin'):
+            if data['fecha_inicio'] >= data['fecha_fin']:
+                errors['fechas'] = "La fecha de inicio debe ser anterior a la fecha de fin"
         
+        # Validar tiempo límite
+        if data.get('tiempo_limite') is not None:
+            if data['tiempo_limite'] <= 0:
+                errors['tiempo_limite'] = "El tiempo límite debe ser mayor a 0"
+        
+        # Validar número de preguntas
         preguntas_count = len(data.get('preguntas', []))
-        if preguntas_count != data['tipo']:
-            raise serializers.ValidationError(f"El número de preguntas debe ser {data['tipo']}")
+        if data.get('tipo') is not None:
+            if preguntas_count != data['tipo']:
+                errors['preguntas'] = f"El número de preguntas debe ser {data['tipo']}"
+        
+        # Validar curso
+        if not data.get('curso'):
+            errors['curso'] = "Debe seleccionar un curso"
+        
+        if errors:
+            raise serializers.ValidationError(errors)
         
         return data
 
     def create(self, validated_data):
-        preguntas_data = validated_data.pop('preguntas')
-        examen = Examen.objects.create(**validated_data)
-        
-        for pregunta_data in preguntas_data:
-            alternativas_data = pregunta_data.pop('alternativas')
-            pregunta = Pregunta.objects.create(examen=examen, **pregunta_data)
+        try:
+            preguntas_data = validated_data.pop('preguntas')
+            examen = Examen.objects.create(**validated_data)
             
-            for alternativa_data in alternativas_data:
-                Alternativa.objects.create(pregunta=pregunta, **alternativa_data)
-        
-        return examen
+            for pregunta_data in preguntas_data:
+                alternativas_data = pregunta_data.pop('alternativas')
+                pregunta = Pregunta.objects.create(examen=examen, **pregunta_data)
+                
+                for alternativa_data in alternativas_data:
+                    Alternativa.objects.create(pregunta=pregunta, **alternativa_data)
+            
+            return examen
+        except Exception as e:
+            raise serializers.ValidationError(f"Error al crear el examen: {str(e)}")
 
 class ExamenListSerializer(serializers.ModelSerializer):
     curso_nombre = serializers.CharField(source='curso.nombre', read_only=True)
